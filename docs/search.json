@@ -40,33 +40,5 @@
     "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
     "section": "Data",
     "text": "Data\nThe data is publicly available at Zenodo and was also kindly shared directly by the authors’ lab."
-  },
-  {
-    "objectID": "README copy.html",
-    "href": "README copy.html",
-    "title": "Getting a Python Quarto Blog Running",
-    "section": "",
-    "text": "On Mac OS:\ncurl -LsSf https://astral.sh/uv/install.sh | sh\nOn Windows (PowerShell):\npowershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"\n\n\n\n\nDownload Quarto for your OS specific CLI using a version &gt;=1.9.\nInstall the CLI\nCheck that your CLI installation worked with quarto check\n\n\n\n\n\nuv init --lib .\nuv venv --python 3.13 to make a different version installed.\nsource .venv/bin/activate to activate the shell\nuv add \"polars[numpy, pyarrow, excel, database, fsspec, async, graph, plot, style, timezone]\" lets-plot\nuv add --dev ipykernel pyyaml nbformat nbclient \"marimo&gt;=0.19.11\"\nAdd the following text to your pyproject.toml that was created and save the file.\n\n[tool.uv]\npackage = false\n\nquarto create project blog . and the terminal will ask you for a title of your blog. Read more about Quarto blogs\nquarto add marimo-team/quarto-marimo\nEdit your _quarto.yml to have the following text (see the _quarto.yml guidance for more). The primary change is output-dir: docs.\n\nproject:\n  type: website\n  output-dir: docs\n\nThis repo has a new_post.sh that can be run to create a new post with marimo chunks. A. Run chmod +x new_post.sh so that the file will run (only needs to be run once). B. Now ./new_post.sh test \"Test Marimo Post\" \"J. Hathaway\" will create a new folder in the posts folder with the folder name test that has an index.qmd file created with the title of test marimo and the author J. Hathaway.\nNow run QUARTO_MARIMO_VERSION=0.14.6 quarto preview to build your site in the docs folder and serve it to your default web browser (Note: at some point we should be able to remove QUARTO_MARIMO_VERSION=0.14.6).\nYou can explore your website and make any other needed changes.\nNow push your changes to Github and then go to settings &gt; pages to fix how our site is rendered using Github pages. We want to use the docs folder method."
-  },
-  {
-    "objectID": "README copy.html#install-uv",
-    "href": "README copy.html#install-uv",
-    "title": "Getting a Python Quarto Blog Running",
-    "section": "",
-    "text": "On Mac OS:\ncurl -LsSf https://astral.sh/uv/install.sh | sh\nOn Windows (PowerShell):\npowershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\""
-  },
-  {
-    "objectID": "README copy.html#install-quarto",
-    "href": "README copy.html#install-quarto",
-    "title": "Getting a Python Quarto Blog Running",
-    "section": "",
-    "text": "Download Quarto for your OS specific CLI using a version &gt;=1.9.\nInstall the CLI\nCheck that your CLI installation worked with quarto check"
-  },
-  {
-    "objectID": "README copy.html#use-uv-and-quarto-to-build-structure",
-    "href": "README copy.html#use-uv-and-quarto-to-build-structure",
-    "title": "Getting a Python Quarto Blog Running",
-    "section": "",
-    "text": "uv init --lib .\nuv venv --python 3.13 to make a different version installed.\nsource .venv/bin/activate to activate the shell\nuv add \"polars[numpy, pyarrow, excel, database, fsspec, async, graph, plot, style, timezone]\" lets-plot\nuv add --dev ipykernel pyyaml nbformat nbclient \"marimo&gt;=0.19.11\"\nAdd the following text to your pyproject.toml that was created and save the file.\n\n[tool.uv]\npackage = false\n\nquarto create project blog . and the terminal will ask you for a title of your blog. Read more about Quarto blogs\nquarto add marimo-team/quarto-marimo\nEdit your _quarto.yml to have the following text (see the _quarto.yml guidance for more). The primary change is output-dir: docs.\n\nproject:\n  type: website\n  output-dir: docs\n\nThis repo has a new_post.sh that can be run to create a new post with marimo chunks. A. Run chmod +x new_post.sh so that the file will run (only needs to be run once). B. Now ./new_post.sh test \"Test Marimo Post\" \"J. Hathaway\" will create a new folder in the posts folder with the folder name test that has an index.qmd file created with the title of test marimo and the author J. Hathaway.\nNow run QUARTO_MARIMO_VERSION=0.14.6 quarto preview to build your site in the docs folder and serve it to your default web browser (Note: at some point we should be able to remove QUARTO_MARIMO_VERSION=0.14.6).\nYou can explore your website and make any other needed changes.\nNow push your changes to Github and then go to settings &gt; pages to fix how our site is rendered using Github pages. We want to use the docs folder method."
   }
 ]
