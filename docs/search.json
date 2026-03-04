@@ -1,10 +1,17 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Camila Ramirez",
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
     "section": "",
-    "text": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
+    "text": "I’m a senior student working on reproducing deep learning-based aberration compensation for fluorescence microscopy as my senior project.\nThis blog documents my journey through the paper by Min Guo et al. (2024), including data exploration, model training, and results."
+  },
+  {
+    "objectID": "about.html#hi-im-camila",
+    "href": "about.html#hi-im-camila",
+    "title": "About",
+    "section": "",
+    "text": "I’m a senior student working on reproducing deep learning-based aberration compensation for fluorescence microscopy as my senior project.\nThis blog documents my journey through the paper by Min Guo et al. (2024), including data exploration, model training, and results."
   },
   {
     "objectID": "posts/01-introduction/index.html",
@@ -47,5 +54,12 @@
     "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
     "section": "Data",
     "text": "Data\nThe data is publicly available at Zenodo and was also kindly shared directly by the authors’ lab."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Camila Ramirez",
+    "section": "",
+    "text": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
   }
 ]

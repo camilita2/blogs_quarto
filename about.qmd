@@ -1,0 +1,18 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/camilita2
+---
+
+## Hi, I'm Camila!
+
+I'm a senior student working on reproducing deep learning-based 
+aberration compensation for fluorescence microscopy as my senior project.
+
+This blog documents my journey through the paper by Min Guo et al. (2024),
+including data exploration, model training, and results.
