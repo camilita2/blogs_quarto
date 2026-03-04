@@ -1,5 +1,47 @@
 [
   {
+    "objectID": "posts/01-introduction/index.html",
+    "href": "posts/01-introduction/index.html",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "",
+    "text": "For my senior project, I am reproducing the work from the paper “Deep learning-based aberration compensation improves contrast and resolution in fluorescence microscopy” by Min Guo et al. (Nature Communications, 2024)."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#overview",
+    "href": "posts/01-introduction/index.html#overview",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "",
+    "text": "For my senior project, I am reproducing the work from the paper “Deep learning-based aberration compensation improves contrast and resolution in fluorescence microscopy” by Min Guo et al. (Nature Communications, 2024)."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#what-is-the-paper-about",
+    "href": "posts/01-introduction/index.html#what-is-the-paper-about",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "What is the paper about?",
+    "text": "What is the paper about?\nThe paper introduces a deep learning pipeline called DeAbe+ that improves the quality of fluorescence microscopy images. When scientists image biological samples like worm embryos, the images get distorted and blurry — especially deep inside thick tissue. The authors trained neural networks to fix these distortions automatically without needing special hardware."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#the-pipeline",
+    "href": "posts/01-introduction/index.html#the-pipeline",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "The Pipeline",
+    "text": "The Pipeline\nThe method works in 3 steps:\n\nDe-aberration (Step 1): Fixes optical distortions using a 3D-RCAN network\nDeconvolution (Step 2): Sharpens the image using another 3D-RCAN network\n\nIsotropic Enhancement (Step 3): Improves resolution in all directions using a CARE network"
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#my-goals",
+    "href": "posts/01-introduction/index.html#my-goals",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "My Goals",
+    "text": "My Goals\n\nDownload and explore the provided dataset (C. elegans worm embryo images)\nRun the pre-trained models on the test data\nReproduce the key figures from the paper\nDocument every step of the process"
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#data",
+    "href": "posts/01-introduction/index.html#data",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "Data",
+    "text": "Data\nThe data is publicly available at Zenodo and was also kindly shared directly by the authors’ lab."
+  },
+  {
     "objectID": "README copy.html",
     "href": "README copy.html",
     "title": "Getting a Python Quarto Blog Running",

@@ -1,0 +1,41 @@
+---
+title: "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy"
+author: "Camila Ramirez"
+date: "2026-03-03"
+categories: [deep learning, microscopy, image processing]
+description: "An introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024"
+---
+
+## Overview
+
+For my senior project, I am reproducing the work from the paper 
+*"Deep learning-based aberration compensation improves contrast and resolution 
+in fluorescence microscopy"* by Min Guo et al. (Nature Communications, 2024).
+
+## What is the paper about?
+
+The paper introduces a deep learning pipeline called **DeAbe+** that improves 
+the quality of fluorescence microscopy images. When scientists image biological 
+samples like worm embryos, the images get distorted and blurry — especially 
+deep inside thick tissue. The authors trained neural networks to fix these 
+distortions automatically without needing special hardware.
+
+## The Pipeline
+
+The method works in 3 steps:
+
+1. **De-aberration (Step 1):** Fixes optical distortions using a 3D-RCAN network
+2. **Deconvolution (Step 2):** Sharpens the image using another 3D-RCAN network  
+3. **Isotropic Enhancement (Step 3):** Improves resolution in all directions using a CARE network
+
+## My Goals
+
+- Download and explore the provided dataset (*C. elegans* worm embryo images)
+- Run the pre-trained models on the test data
+- Reproduce the key figures from the paper
+- Document every step of the process
+
+## Data
+
+The data is publicly available at [Zenodo](https://zenodo.org/records/11277422) 
+and was also kindly shared directly by the authors' lab.
