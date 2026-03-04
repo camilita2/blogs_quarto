@@ -56,10 +56,38 @@
     "text": "Data\nThe data is publicly available at Zenodo and was also kindly shared directly by the authors’ lab."
   },
   {
+    "objectID": "posts/02-data-exploration/index.html",
+    "href": "posts/02-data-exploration/index.html",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "",
+    "text": "In this post I load and explore the test microscopy images provided by the lab."
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#introduction",
+    "href": "posts/02-data-exploration/index.html#introduction",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "",
+    "text": "In this post I load and explore the test microscopy images provided by the lab."
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#loading-the-images",
+    "href": "posts/02-data-exploration/index.html#loading-the-images",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "Loading the Images",
+    "text": "Loading the Images\n\nimport tifffile\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n# Load both images\nspima = tifffile.imread('../../data/Test_Data/input/SPIMA/SPIMA-80.tif')\nspimb = tifffile.imread('../../data/Test_Data/input/SPIMB/SPIMB-80.tif')\n\nprint(f\"SPIMA shape: {spima.shape}\")\nprint(f\"SPIMB shape: {spimb.shape}\")\nprint(f\"Data type: {spima.dtype}\")\n\nSPIMA shape: (45, 370, 270)\nSPIMB shape: (45, 370, 270)\nData type: uint16"
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#visualizing-the-images",
+    "href": "posts/02-data-exploration/index.html#visualizing-the-images",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "Visualizing the Images",
+    "text": "Visualizing the Images\n\nfig, axes = plt.subplots(1, 2, figsize=(12, 5))\n\naxes[0].imshow(spima[spima.shape[0]//2], cmap='gray')\naxes[0].set_title('SPIMA - Middle Slice')\naxes[0].axis('off')\n\naxes[1].imshow(spimb[spimb.shape[0]//2], cmap='gray')\naxes[1].set_title('SPIMB - Middle Slice')\naxes[1].axis('off')\n\nplt.suptitle('C. elegans Embryo - Raw Microscopy Images')\nplt.tight_layout()\nplt.show()"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Camila Ramirez",
     "section": "",
-    "text": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
+    "text": "Data Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
   }
 ]

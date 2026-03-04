@@ -1,0 +1,44 @@
+---
+title: "Data Exploration - Worm Embryo Microscopy Images"
+description: "Loading and visualizing the C. elegans test dataset"
+author: "Camila Ramirez"
+date: "2026-03-04"
+categories: [data exploration, microscopy, python]
+draft: false
+---
+
+## Introduction
+In this post I load and explore the test microscopy images 
+provided by the lab.
+
+## Loading the Images
+```{python}
+import tifffile
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load both images
+spima = tifffile.imread('../../data/Test_Data/input/SPIMA/SPIMA-80.tif')
+spimb = tifffile.imread('../../data/Test_Data/input/SPIMB/SPIMB-80.tif')
+
+print(f"SPIMA shape: {spima.shape}")
+print(f"SPIMB shape: {spimb.shape}")
+print(f"Data type: {spima.dtype}")
+```
+
+## Visualizing the Images
+```{python}
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+axes[0].imshow(spima[spima.shape[0]//2], cmap='gray')
+axes[0].set_title('SPIMA - Middle Slice')
+axes[0].axis('off')
+
+axes[1].imshow(spimb[spimb.shape[0]//2], cmap='gray')
+axes[1].set_title('SPIMB - Middle Slice')
+axes[1].axis('off')
+
+plt.suptitle('C. elegans Embryo - Raw Microscopy Images')
+plt.tight_layout()
+plt.show()
+```
