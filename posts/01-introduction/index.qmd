@@ -1,9 +1,10 @@
 ---
 title: "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy"
+description: "An introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024"
 author: "Camila Ramirez"
 date: "2026-03-03"
 categories: [deep learning, microscopy, image processing]
-description: "An introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024"
+draft: false
 ---
 
 ## Overview
