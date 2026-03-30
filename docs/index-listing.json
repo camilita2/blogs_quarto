@@ -1,6 +1,7 @@
 {
   "listing": "/index.html",
   "items": [
+    "/posts/04-theory-3drcan/index.html",
     "/posts/03-reproducibility-challenges/index.html",
     "/posts/02-data-exploration/index.html",
     "/posts/01-introduction/index.html"

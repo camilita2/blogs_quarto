@@ -1,0 +1,145 @@
+---
+title: "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention"
+description: "A mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy"
+author: "Camila Ramirez"
+date: "2026-03-26"
+categories: [theory, deep learning, math, linear algebra]
+draft: false
+---
+
+## Introduction
+
+The 3D-RCAN network might seem like a black box, but it is built from 
+three elegant mathematical ideas that connect directly to linear algebra. 
+In this post I break down each one.
+
+## 1. Convolutions — Sliding Matrix Multiplication
+
+A 3D convolution is the core operation in this network. Conceptually, 
+we slide a small matrix called a **kernel** $W$ over the input volume $x$ 
+and compute a weighted sum at each position:
+
+$$y[i,j,k] = \sum_{p,q,r} W[p,q,r] \cdot x[i+p, j+q, k+r]$$
+
+Where:
+- $x$ is the input 3D image (a tensor of shape $Z \times Y \times X$)
+- $W$ is the learned kernel (e.g. $3 \times 3 \times 3$)
+- $y$ is the output feature map
+
+Think of it as a dot product between the kernel and every local patch 
+of the image. The network learns the values of $W$ during training.
+
+In matrix notation for a single patch:
+
+$$y = W \cdot x_{patch} + b$$
+
+Where $b$ is a bias term. This is pure linear algebra.
+
+## 2. Residual Learning — Learning the Difference
+
+A key innovation in RCAN is **residual learning**. Instead of learning 
+the full mapping from input to output directly, the network learns the 
+*residual* — the difference between input and desired output.
+
+A standard network learns:
+$$y = F(x)$$
+
+A residual network learns:
+$$y = F(x) + x$$
+
+The $+x$ term is called a **skip connection**. It passes the original 
+input directly to the output and adds it to the learned transformation.
+
+Why does this help? Because learning $F(x) = 0$ (no change needed) is 
+much easier than learning $F(x) = x$ (identity mapping). The network 
+only needs to learn corrections, not the full image.
+
+In the 3D-RCAN architecture this is applied hierarchically — residuals 
+within residuals, called **Residual-in-Residual** structure:
+
+$$y_{group} = F_{group}(x) + x$$
+$$y_{block} = F_{block}(x) + x$$
+
+## 3. Channel Attention — Adaptive Feature Weighting
+
+Not all feature channels are equally important. The **channel attention 
+mechanism** learns to weight each channel adaptively.
+
+For a feature map with $C$ channels, we first compute the global average 
+of each channel (called Global Average Pooling):
+
+$$z_c = \frac{1}{Z \cdot Y \cdot X} \sum_{i,j,k} x_c[i,j,k]$$
+
+This gives us a vector $z \in \mathbb{R}^C$ — one number per channel 
+summarizing its overall activation.
+
+Then we pass it through two small linear layers with a bottleneck:
+
+$$s = \sigma\left(W_2 \cdot \text{ReLU}(W_1 \cdot z)\right)$$
+
+Where:
+- $W_1 \in \mathbb{R}^{C/r \times C}$ reduces dimensions (r is reduction ratio)
+- $W_2 \in \mathbb{R}^{C \times C/r}$ restores dimensions
+- $\sigma$ is the sigmoid function (outputs values between 0 and 1)
+
+Finally we multiply each channel by its learned weight:
+
+$$\hat{x}_c = s_c \cdot x_c$$
+
+This tells the network: *pay more attention to channels that contain 
+useful information, and suppress channels that don't.*
+
+## 4. Putting It All Together: The RCAB Block
+
+A **Residual Channel Attention Block (RCAB)** combines all three ideas:
+
+$$\text{RCAB}(x) = x + \text{ChannelAttention}(\text{Conv}(\text{ReLU}(\text{Conv}(x))))$$
+
+In words:
+1. Apply two convolutions with ReLU activation
+2. Apply channel attention to reweight features
+3. Add the original input back (residual connection)
+
+The full 3D-RCAN stacks multiple RCABs into **Residual Groups**, and 
+multiple Residual Groups into the full network.
+
+## 5. Training: How the Network Learns
+
+The network is trained on pairs of images:
+- **Input:** Aberrated microscopy image $\hat{x}$
+- **Target:** Clean ground truth image $x^*$
+
+It minimizes the **Mean Absolute Error (MAE)** loss:
+
+$$\mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} |f(\hat{x}_i) - x^*_i|$$
+
+Where $f$ is the network and $N$ is the number of pixels. The network 
+updates its weights using **gradient descent**:
+
+$$W \leftarrow W - \alpha \nabla_W \mathcal{L}$$
+
+Where $\alpha$ is the learning rate. This is the chain rule of calculus 
+applied to matrices — exactly what you study in multivariable calculus 
+and linear algebra!
+
+## Connection to Your Classes
+
+| Concept | Class |
+|---------|-------|
+| Matrix multiplication (convolutions) | Linear Algebra |
+| Gradient descent, chain rule | Multivariable Calculus |
+| Dot products, vector spaces | Linear Algebra |
+| Eigenvalues (feature channels) | Linear Algebra |
+| Loss minimization | Calculus |
+
+## Summary
+
+3D-RCAN is elegant because it builds a powerful image restoration system 
+from simple mathematical operations you already know:
+- **Convolution** = sliding dot products
+- **Residual learning** = addition of matrices
+- **Channel attention** = learned scaling of vectors
+- **Training** = gradient descent on a loss function
+
+The "deep learning" part is really just applying these operations 
+millions of times with learned parameters.
