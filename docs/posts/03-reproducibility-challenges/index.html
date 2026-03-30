@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Camila Ramirez">
-<meta name="dcterms.date" content="2026-03-04">
-<meta name="description" content="Loading and visualizing the C. elegans test dataset">
+<meta name="dcterms.date" content="2026-03-26">
+<meta name="description" content="Documenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware">
 
-<title>Data Exploration - Worm Embryo Microscopy Images – Camila Ramirez</title>
+<title>Reproducibility Challenges: Running 3D-RCAN in 2026 – Camila Ramirez</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -25,41 +25,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -160,9 +125,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#loading-the-images" id="toc-loading-the-images" class="nav-link" data-scroll-target="#loading-the-images">Loading the Images</a></li>
-  <li><a href="#visualizing-the-images" id="toc-visualizing-the-images" class="nav-link" data-scroll-target="#visualizing-the-images">Visualizing the Images</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#my-environment" id="toc-my-environment" class="nav-link" data-scroll-target="#my-environment">My Environment</a></li>
+  <li><a href="#what-the-code-requires" id="toc-what-the-code-requires" class="nav-link" data-scroll-target="#what-the-code-requires">What the Code Requires</a></li>
+  <li><a href="#the-compatibility-timeline" id="toc-the-compatibility-timeline" class="nav-link" data-scroll-target="#the-compatibility-timeline">The Compatibility Timeline</a>
+  <ul class="collapse">
+  <li><a href="#attempt-1-run-directly-on-mac-m3" id="toc-attempt-1-run-directly-on-mac-m3" class="nav-link" data-scroll-target="#attempt-1-run-directly-on-mac-m3">Attempt 1 — Run directly on Mac M3</a></li>
+  <li><a href="#attempt-2-keras-serialization-error" id="toc-attempt-2-keras-serialization-error" class="nav-link" data-scroll-target="#attempt-2-keras-serialization-error">Attempt 2 — Keras serialization error</a></li>
+  <li><a href="#attempt-3-apple-silicon-threading-crash" id="toc-attempt-3-apple-silicon-threading-crash" class="nav-link" data-scroll-target="#attempt-3-apple-silicon-threading-crash">Attempt 3 — Apple Silicon threading crash</a></li>
+  <li><a href="#attempt-4-google-colab" id="toc-attempt-4-google-colab" class="nav-link" data-scroll-target="#attempt-4-google-colab">Attempt 4 — Google Colab</a></li>
+  <li><a href="#attempt-5-python-3.10-tensorflow-macos" id="toc-attempt-5-python-3.10-tensorflow-macos" class="nav-link" data-scroll-target="#attempt-5-python-3.10-tensorflow-macos">Attempt 5 — Python 3.10 + tensorflow-macos</a></li>
+  </ul></li>
+  <li><a href="#where-things-stand" id="toc-where-things-stand" class="nav-link" data-scroll-target="#where-things-stand">Where Things Stand</a></li>
+  <li><a href="#why-this-matters" id="toc-why-this-matters" class="nav-link" data-scroll-target="#why-this-matters">Why This Matters</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul>
 </nav>
     </div>
@@ -171,17 +147,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Exploration - Worm Embryo Microscopy Images</h1>
+<h1 class="title">Reproducibility Challenges: Running 3D-RCAN in 2026</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">data exploration</div>
-    <div class="quarto-category">microscopy</div>
+    <div class="quarto-category">reproducibility</div>
+    <div class="quarto-category">tensorflow</div>
     <div class="quarto-category">python</div>
+    <div class="quarto-category">debugging</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    Loading and visualizing the C. elegans test dataset
+    Documenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware
   </div>
 </div>
 
@@ -198,7 +175,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 4, 2026</p>
+      <p class="date">March 26, 2026</p>
     </div>
   </div>
   
@@ -210,55 +187,124 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>In this post I load and explore the test microscopy images provided by the lab.</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>One of the most important — and often overlooked — aspects of science is <strong>reproducibility</strong>: the ability for other researchers to run the same code and get the same results. This post documents the real challenges I encountered trying to run the 3D-RCAN pipeline from Guo et al.&nbsp;(2024) on modern hardware and software in 2026.</p>
+<p>Spoiler: it did not work out of the box. And that itself is an important finding.</p>
 </section>
-<section id="loading-the-images" class="level2">
-<h2 class="anchored" data-anchor-id="loading-the-images">Loading the Images</h2>
-<div id="19a6c1d7" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tifffile</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load both images</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>spima <span class="op">=</span> tifffile.imread(<span class="st">'../../data/Test_Data/input/SPIMA/SPIMA-80.tif'</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>spimb <span class="op">=</span> tifffile.imread(<span class="st">'../../data/Test_Data/input/SPIMB/SPIMB-80.tif'</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SPIMA shape: </span><span class="sc">{</span>spima<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SPIMB shape: </span><span class="sc">{</span>spimb<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Data type: </span><span class="sc">{</span>spima<span class="sc">.</span>dtype<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>SPIMA shape: (45, 370, 270)
-SPIMB shape: (45, 370, 270)
-Data type: uint16</code></pre>
-</div>
-</div>
+<section id="my-environment" class="level2">
+<h2 class="anchored" data-anchor-id="my-environment">My Environment</h2>
+<ul>
+<li><strong>Computer:</strong> MacBook Air M3 (Apple Silicon), 16GB RAM</li>
+<li><strong>OS:</strong> macOS Sequoia 15.6</li>
+<li><strong>Python:</strong> 3.12 (system), 3.10 (virtual environment)</li>
+<li><strong>Goal:</strong> Run the pre-trained de-aberration model on <em>C. elegans</em> test images</li>
+</ul>
 </section>
-<section id="visualizing-the-images" class="level2">
-<h2 class="anchored" data-anchor-id="visualizing-the-images">Visualizing the Images</h2>
-<div id="56c07042" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].imshow(spima[spima.shape[<span class="dv">0</span>]<span class="op">//</span><span class="dv">2</span>], cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'SPIMA - Middle Slice'</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axis(<span class="st">'off'</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].imshow(spimb[spimb.shape[<span class="dv">0</span>]<span class="op">//</span><span class="dv">2</span>], cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'SPIMB - Middle Slice'</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axis(<span class="st">'off'</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'C. elegans Embryo - Raw Microscopy Images'</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-3-output-1.png" width="813" height="475" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
+<section id="what-the-code-requires" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-code-requires">What the Code Requires</h2>
+<p>The 3D-RCAN code was written in 2021 and requires:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dependency</th>
+<th>Required Version</th>
+<th>Latest Version (2026)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Python</td>
+<td>3.7</td>
+<td>3.13</td>
+</tr>
+<tr class="even">
+<td>TensorFlow</td>
+<td>1.13</td>
+<td>2.21</td>
+</tr>
+<tr class="odd">
+<td>Keras</td>
+<td>2.2.4</td>
+<td>3.x</td>
+</tr>
+<tr class="even">
+<td>CUDA</td>
+<td>10.0</td>
+<td>12.x</td>
+</tr>
+<tr class="odd">
+<td>GPU</td>
+<td>NVIDIA only</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-compatibility-timeline" class="level2">
+<h2 class="anchored" data-anchor-id="the-compatibility-timeline">The Compatibility Timeline</h2>
+<section id="attempt-1-run-directly-on-mac-m3" class="level3">
+<h3 class="anchored" data-anchor-id="attempt-1-run-directly-on-mac-m3">Attempt 1 — Run directly on Mac M3</h3>
+<p>Running <code>apply.py</code> with system Python 3.12 and TensorFlow 2.21 immediately failed:</p>
+<pre><code>AttributeError: module 'tensorflow' has no attribute 'logging'</code></pre>
+<p><strong>Root cause:</strong> <code>tf.logging</code> was removed in TensorFlow 2.x.<br>
+<strong>Fix:</strong> Replace with <code>tf.compat.v1.logging</code> ✅</p>
+</section>
+<section id="attempt-2-keras-serialization-error" class="level3">
+<h3 class="anchored" data-anchor-id="attempt-2-keras-serialization-error">Attempt 2 — Keras serialization error</h3>
+<p>After fixing the logging issue:</p>
+<pre><code>TypeError: Could not locate class 'Model'</code></pre>
+<p><strong>Root cause:</strong> Keras 3.x completely changed its model serialization format.<br>
+<strong>Fix attempted:</strong> Replace <code>model_from_config()</code> with <code>model_from_json()</code> — partially worked but hit further issues.</p>
+</section>
+<section id="attempt-3-apple-silicon-threading-crash" class="level3">
+<h3 class="anchored" data-anchor-id="attempt-3-apple-silicon-threading-crash">Attempt 3 — Apple Silicon threading crash</h3>
+<pre><code>libc++abi: terminating due to uncaught exception of type 
+std::__1::system_error: mutex lock failed</code></pre>
+<p><strong>Root cause:</strong> TensorFlow’s threading model conflicts with macOS on M3.<br>
+<strong>Fix:</strong> Set <code>OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES</code> ✅</p>
+</section>
+<section id="attempt-4-google-colab" class="level3">
+<h3 class="anchored" data-anchor-id="attempt-4-google-colab">Attempt 4 — Google Colab</h3>
+<p>Moved to Google Colab hoping their NVIDIA GPUs would help:</p>
+<pre><code>ERROR: No matching distribution found for tensorflow-gpu==1.13.1</code></pre>
+<p><strong>Root cause:</strong> TensorFlow 1.x is no longer available on any platform.</p>
+</section>
+<section id="attempt-5-python-3.10-tensorflow-macos" class="level3">
+<h3 class="anchored" data-anchor-id="attempt-5-python-3.10-tensorflow-macos">Attempt 5 — Python 3.10 + tensorflow-macos</h3>
+<p>Created a fresh virtual environment with Python 3.10 and <code>tensorflow-macos==2.12.0</code> (the last version before Keras 3 broke everything):</p>
+<pre><code>Metal device set to: Apple M3
+systemMemory: 16.00 GB
+Loading model from RCAN_model/weights_169_0.05605552.hdf5</code></pre>
+<p>Progress! The model file was found and Metal GPU detected. But then:</p>
+<pre><code>ValueError: bad marshal data (unknown type code)</code></pre>
+<p><strong>Root cause:</strong> The model contains Lambda layers whose bytecode was compiled with Python 3.7. Python’s <code>marshal</code> module is not compatible across versions, so the bytecode cannot be loaded in Python 3.10.</p>
+</section>
+</section>
+<section id="where-things-stand" class="level2">
+<h2 class="anchored" data-anchor-id="where-things-stand">Where Things Stand</h2>
+<p>I have successfully: - ✅ Loaded the test images and verified the data - ✅ Fixed 5 separate compatibility issues in the codebase - ✅ Got the Apple M3 Metal GPU recognized by TensorFlow - ✅ Located and verified the trained model weights - ✅ Contacted the original authors for guidance</p>
+<p>The remaining blocker is the Python bytecode incompatibility in the Lambda layers — a fundamental issue caused by the model being saved with Python 3.7 compiled functions that cannot be deserialized in any newer Python version.</p>
+</section>
+<section id="why-this-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h2>
+<p>This experience highlights <strong>software rot</strong> — a real and growing problem in computational science. Code that worked perfectly in 2021 may not run at all in 2026 due to:</p>
+<ul>
+<li>Dependency deprecation</li>
+<li>Breaking API changes between major versions<br>
+</li>
+<li>Hardware architecture evolution (x86 → Apple Silicon)</li>
+<li>Cloud platform updates removing old package versions</li>
+</ul>
+<p>A 2022 study found that over 50% of published computational biology papers cannot be fully reproduced due to software dependency issues. Documenting these challenges — as I am doing here — is itself a valuable scientific contribution to the reproducibility crisis conversation.</p>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
+<ol type="1">
+<li>Continue working with the original authors to get a working environment</li>
+<li>Rewrite the inference code in modern PyTorch which runs natively on Mac M3</li>
+<li>Compare results to the paper’s published figures</li>
+</ol>
 
 
 </section>
