@@ -1,0 +1,268 @@
+[
+  {
+    "objectID": "data/3D-RCAN/LICENSE.html",
+    "href": "data/3D-RCAN/LICENSE.html",
+    "title": "LICENSE",
+    "section": "",
+    "text": "LICENSE\nCopyright © 2021 SVision Technologies LLC.\nReleased under Creative Commons Attribution-NonCommercial 4.0 International Public License (CC BY-NC 4.0)"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Camila Ramirez",
+    "section": "",
+    "text": "Reimplementing 3D-RCAN in Modern PyTorch\n\n\n\npytorch\n\ndeep learning\n\nreimplementation\n\npython\n\n\n\nBuilding the 3D Residual Channel Attention Network from scratch in PyTorch and running it on Apple M3\n\n\n\n\n\nMar 30, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nThe Math Behind 3D-RCAN: Convolutions, Residuals and Attention\n\n\n\ntheory\n\ndeep learning\n\nmath\n\nlinear algebra\n\n\n\nA mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy\n\n\n\n\n\nMar 26, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducibility Challenges: Running 3D-RCAN in 2026\n\n\n\nreproducibility\n\ntensorflow\n\npython\n\ndebugging\n\n\n\nDocumenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware\n\n\n\n\n\nMar 15, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nData Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html",
+    "href": "posts/05-pytorch-rewrite/index.html",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "",
+    "text": "After spending significant time trying to run the original 3D-RCAN code (documented in my reproducibility challenges post), I decided to rewrite the entire network from scratch in modern PyTorch.\nThis approach has several advantages: - PyTorch runs natively on Apple M3 via Metal Performance Shaders (MPS) - Modern PyTorch is actively maintained and well documented - Building from scratch forces a deeper understanding of the architecture - No dependency on 5-year-old Keras/TensorFlow code"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#why-rewrite",
+    "href": "posts/05-pytorch-rewrite/index.html#why-rewrite",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "",
+    "text": "After spending significant time trying to run the original 3D-RCAN code (documented in my reproducibility challenges post), I decided to rewrite the entire network from scratch in modern PyTorch.\nThis approach has several advantages: - PyTorch runs natively on Apple M3 via Metal Performance Shaders (MPS) - Modern PyTorch is actively maintained and well documented - Building from scratch forces a deeper understanding of the architecture - No dependency on 5-year-old Keras/TensorFlow code"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#the-architecture",
+    "href": "posts/05-pytorch-rewrite/index.html#the-architecture",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "The Architecture",
+    "text": "The Architecture\nThe 3D-RCAN network is built from four components, each building on the previous:\n\nComponent 1: Channel Attention\nThe first building block learns which feature channels matter most.\nclass ChannelAttention(nn.Module):\n    def __init__(self, num_channels, reduction=8):\n        super().__init__()\n        self.gap = nn.AdaptiveAvgPool3d(1)  # squeeze each channel to 1 number\n        self.fc = nn.Sequential(\n            nn.Linear(num_channels, num_channels // reduction),\n            nn.ReLU(),\n            nn.Linear(num_channels // reduction, num_channels),\n            nn.Sigmoid()  # outputs weights between 0 and 1\n        )\n\n    def forward(self, x):\n        z = self.gap(x).view(x.size(0), -1)  # global average per channel\n        s = self.fc(z).view(x.size(0), -1, 1, 1, 1)  # learned weights\n        return x * s  # scale each channel by its weight\nIn math: \\(s = \\sigma(W_2 \\cdot \\text{ReLU}(W_1 \\cdot z))\\)\nEach channel gets multiplied by a learned weight between 0 and 1. Channels with useful information get weight close to 1. Channels that don’t matter get weight close to 0.\n\n\nComponent 2: RCAB (Residual Channel Attention Block)\nThe core processing unit combines convolutions, channel attention, and a skip connection:\nclass RCAB(nn.Module):\n    def forward(self, x):\n        residual = x                    # save the original input\n        out = self.relu(self.conv1(x))  # first convolution\n        out = self.conv2(out)           # second convolution  \n        out = self.ca(out)              # apply channel attention\n        return out + residual           # add original back (skip connection!)\nIn math: \\(\\text{RCAB}(x) = x + \\text{CA}(\\text{Conv}(\\text{ReLU}(\\text{Conv}(x))))\\)\nThe key insight is the + residual at the end. Instead of learning the full transformation, the network only learns the correction needed. This makes training much easier.\n\n\nComponent 3: Residual Group\nFive RCABs stacked together with another skip connection around the whole group:\nclass ResidualGroup(nn.Module):\n    def forward(self, x):\n        return x + self.conv(self.blocks(x))  # residuals within residuals!\nThis creates a hierarchical structure — small residuals inside large residuals — which helps the network learn at multiple scales.\n\n\nComponent 4: Full RCAN3D Network\nThe complete network chains everything together:\nclass RCAN3D(nn.Module):\n    def forward(self, x):\n        # Normalize input\n        mean, std = x.mean(), x.std() + 1e-8\n        x = (x - mean) / std\n        \n        # Forward pass\n        head = self.head(x)           # initial feature extraction\n        body = self.body(head)        # 5 residual groups\n        out = self.tail(body + head)  # global skip connection\n        \n        # Denormalize output\n        return out * std + mean"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#running-on-apple-m3",
+    "href": "posts/05-pytorch-rewrite/index.html#running-on-apple-m3",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "Running on Apple M3",
+    "text": "Running on Apple M3\nOne of the main motivations for the rewrite was to run on Apple Silicon. PyTorch supports M3 via Metal Performance Shaders (MPS):\ndevice = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')\nmodel = RCAN3D().to(device)\nUsing device: mps\nTotal parameters: 1,559,141\nInput shape:  torch.Size([1, 1, 16, 64, 64])\nOutput shape: torch.Size([1, 1, 16, 64, 64])\nModel works!\nThe model has 1.5 million trainable parameters and runs successfully on the M3 GPU."
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#applying-to-real-data",
+    "href": "posts/05-pytorch-rewrite/index.html#applying-to-real-data",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "Applying to Real Data",
+    "text": "Applying to Real Data\nI applied the rewrite to the actual C. elegans worm embryo test images:\nimage = tifffile.imread('SPIMA-80.tif').astype(np.float32)\n# Image shape: (45, 370, 270)\n# Min: 0.00, Max: 660.00\n\n\n\nBefore and After"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#important-caveat-untrained-weights",
+    "href": "posts/05-pytorch-rewrite/index.html#important-caveat-untrained-weights",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "Important Caveat: Untrained Weights",
+    "text": "Important Caveat: Untrained Weights\nThe output looks noisy because the model has randomly initialized weights — it has not been trained yet. The original paper’s trained weights are stored in a Keras .hdf5 format that is not directly compatible with PyTorch.\nTo get meaningful results, the model would need to either: 1. Be trained from scratch on the paired aberrated/clean image dataset 2. Have the original Keras weights converted to PyTorch format\nThis is the next step in the project. The architecture itself is correct — the input and output shapes match, the model runs on M3, and all the mathematical operations are properly implemented."
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#what-i-learned",
+    "href": "posts/05-pytorch-rewrite/index.html#what-i-learned",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "What I Learned",
+    "text": "What I Learned\nRewriting this network from scratch taught me more about deep learning than simply running the original code would have. Specifically:\n\nThe difference between architecture (the network structure) and weights (the learned parameters)\nHow skip connections make deep networks trainable\nHow channel attention adaptively focuses on important features\nHow normalization stabilizes training and inference\nThe practical challenges of cross-framework compatibility"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#comparison-original-vs-rewrite",
+    "href": "posts/05-pytorch-rewrite/index.html#comparison-original-vs-rewrite",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "Comparison: Original vs Rewrite",
+    "text": "Comparison: Original vs Rewrite\n\n\n\nFeature\nOriginal (Keras)\nRewrite (PyTorch)\n\n\n\n\nPython version\n3.7\n3.10\n\n\nFramework\nTensorFlow 1.13 + Keras\nPyTorch 2.11\n\n\nMac M3 support\n❌\n✅\n\n\nLines of code\n~500\n~100\n\n\nTrained weights\n✅\n❌ (next step)\n\n\nRuns in 2026\n❌\n✅"
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html",
+    "href": "posts/02-data-exploration/index.html",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "",
+    "text": "In this post I load and explore the test microscopy images provided by the lab."
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#introduction",
+    "href": "posts/02-data-exploration/index.html#introduction",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "",
+    "text": "In this post I load and explore the test microscopy images provided by the lab."
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#loading-the-images",
+    "href": "posts/02-data-exploration/index.html#loading-the-images",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "Loading the Images",
+    "text": "Loading the Images\n\nimport tifffile\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n# Load both images\nspima = tifffile.imread('../../data/Test_Data/input/SPIMA/SPIMA-80.tif')\nspimb = tifffile.imread('../../data/Test_Data/input/SPIMB/SPIMB-80.tif')\n\nprint(f\"SPIMA shape: {spima.shape}\")\nprint(f\"SPIMB shape: {spimb.shape}\")\nprint(f\"Data type: {spima.dtype}\")\n\nSPIMA shape: (45, 370, 270)\nSPIMB shape: (45, 370, 270)\nData type: uint16"
+  },
+  {
+    "objectID": "posts/02-data-exploration/index.html#visualizing-the-images",
+    "href": "posts/02-data-exploration/index.html#visualizing-the-images",
+    "title": "Data Exploration - Worm Embryo Microscopy Images",
+    "section": "Visualizing the Images",
+    "text": "Visualizing the Images\n\nfig, axes = plt.subplots(1, 2, figsize=(12, 5))\n\naxes[0].imshow(spima[spima.shape[0]//2], cmap='gray')\naxes[0].set_title('SPIMA - Middle Slice')\naxes[0].axis('off')\n\naxes[1].imshow(spimb[spimb.shape[0]//2], cmap='gray')\naxes[1].set_title('SPIMB - Middle Slice')\naxes[1].axis('off')\n\nplt.suptitle('C. elegans Embryo - Raw Microscopy Images')\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html",
+    "href": "posts/04-theory-3drcan/index.html",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "",
+    "text": "The 3D-RCAN network might seem like a black box, but it is built from three elegant mathematical ideas that connect directly to linear algebra. In this post I break down each one."
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#introduction",
+    "href": "posts/04-theory-3drcan/index.html#introduction",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "",
+    "text": "The 3D-RCAN network might seem like a black box, but it is built from three elegant mathematical ideas that connect directly to linear algebra. In this post I break down each one."
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#convolutions-sliding-matrix-multiplication",
+    "href": "posts/04-theory-3drcan/index.html#convolutions-sliding-matrix-multiplication",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "1. Convolutions — Sliding Matrix Multiplication",
+    "text": "1. Convolutions — Sliding Matrix Multiplication\nA 3D convolution is the core operation in this network. Conceptually, we slide a small matrix called a kernel \\(W\\) over the input volume \\(x\\) and compute a weighted sum at each position:\n\\[y[i,j,k] = \\sum_{p,q,r} W[p,q,r] \\cdot x[i+p, j+q, k+r]\\]\nWhere: - \\(x\\) is the input 3D image (a tensor of shape \\(Z \\times Y \\times X\\)) - \\(W\\) is the learned kernel (e.g. \\(3 \\times 3 \\times 3\\)) - \\(y\\) is the output feature map\nThink of it as a dot product between the kernel and every local patch of the image. The network learns the values of \\(W\\) during training.\nIn matrix notation for a single patch:\n\\[y = W \\cdot x_{patch} + b\\]\nWhere \\(b\\) is a bias term. This is pure linear algebra."
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#residual-learning-learning-the-difference",
+    "href": "posts/04-theory-3drcan/index.html#residual-learning-learning-the-difference",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "2. Residual Learning — Learning the Difference",
+    "text": "2. Residual Learning — Learning the Difference\nA key innovation in RCAN is residual learning. Instead of learning the full mapping from input to output directly, the network learns the residual — the difference between input and desired output.\nA standard network learns: \\[y = F(x)\\]\nA residual network learns: \\[y = F(x) + x\\]\nThe \\(+x\\) term is called a skip connection. It passes the original input directly to the output and adds it to the learned transformation.\nWhy does this help? Because learning \\(F(x) = 0\\) (no change needed) is much easier than learning \\(F(x) = x\\) (identity mapping). The network only needs to learn corrections, not the full image.\nIn the 3D-RCAN architecture this is applied hierarchically — residuals within residuals, called Residual-in-Residual structure:\n\\[y_{group} = F_{group}(x) + x\\] \\[y_{block} = F_{block}(x) + x\\]"
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#channel-attention-adaptive-feature-weighting",
+    "href": "posts/04-theory-3drcan/index.html#channel-attention-adaptive-feature-weighting",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "3. Channel Attention — Adaptive Feature Weighting",
+    "text": "3. Channel Attention — Adaptive Feature Weighting\nNot all feature channels are equally important. The channel attention mechanism learns to weight each channel adaptively.\nFor a feature map with \\(C\\) channels, we first compute the global average of each channel (called Global Average Pooling):\n\\[z_c = \\frac{1}{Z \\cdot Y \\cdot X} \\sum_{i,j,k} x_c[i,j,k]\\]\nThis gives us a vector \\(z \\in \\mathbb{R}^C\\) — one number per channel summarizing its overall activation.\nThen we pass it through two small linear layers with a bottleneck:\n\\[s = \\sigma\\left(W_2 \\cdot \\text{ReLU}(W_1 \\cdot z)\\right)\\]\nWhere: - \\(W_1 \\in \\mathbb{R}^{C/r \\times C}\\) reduces dimensions (r is reduction ratio) - \\(W_2 \\in \\mathbb{R}^{C \\times C/r}\\) restores dimensions - \\(\\sigma\\) is the sigmoid function (outputs values between 0 and 1)\nFinally we multiply each channel by its learned weight:\n\\[\\hat{x}_c = s_c \\cdot x_c\\]\nThis tells the network: pay more attention to channels that contain useful information, and suppress channels that don’t."
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#putting-it-all-together-the-rcab-block",
+    "href": "posts/04-theory-3drcan/index.html#putting-it-all-together-the-rcab-block",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "4. Putting It All Together: The RCAB Block",
+    "text": "4. Putting It All Together: The RCAB Block\nA Residual Channel Attention Block (RCAB) combines all three ideas:\n\\[\\text{RCAB}(x) = x + \\text{ChannelAttention}(\\text{Conv}(\\text{ReLU}(\\text{Conv}(x))))\\]\nIn words: 1. Apply two convolutions with ReLU activation 2. Apply channel attention to reweight features 3. Add the original input back (residual connection)\nThe full 3D-RCAN stacks multiple RCABs into Residual Groups, and multiple Residual Groups into the full network."
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#training-how-the-network-learns",
+    "href": "posts/04-theory-3drcan/index.html#training-how-the-network-learns",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "5. Training: How the Network Learns",
+    "text": "5. Training: How the Network Learns\nThe network is trained on pairs of images: - Input: Aberrated microscopy image \\(\\hat{x}\\) - Target: Clean ground truth image \\(x^*\\)\nIt minimizes the Mean Absolute Error (MAE) loss:\n\\[\\mathcal{L} = \\frac{1}{N} \\sum_{i=1}^{N} |f(\\hat{x}_i) - x^*_i|\\]\nWhere \\(f\\) is the network and \\(N\\) is the number of pixels. The network updates its weights using gradient descent:\n\\[W \\leftarrow W - \\alpha \\nabla_W \\mathcal{L}\\]\nWhere \\(\\alpha\\) is the learning rate. This is the chain rule of calculus applied to matrices — exactly what you study in multivariable calculus and linear algebra!"
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#connection-to-your-classes",
+    "href": "posts/04-theory-3drcan/index.html#connection-to-your-classes",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "Connection to Your Classes",
+    "text": "Connection to Your Classes\n\n\n\nConcept\nClass\n\n\n\n\nMatrix multiplication (convolutions)\nLinear Algebra\n\n\nGradient descent, chain rule\nMultivariable Calculus\n\n\nDot products, vector spaces\nLinear Algebra\n\n\nEigenvalues (feature channels)\nLinear Algebra\n\n\nLoss minimization\nCalculus"
+  },
+  {
+    "objectID": "posts/04-theory-3drcan/index.html#summary",
+    "href": "posts/04-theory-3drcan/index.html#summary",
+    "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
+    "section": "Summary",
+    "text": "Summary\n3D-RCAN is elegant because it builds a powerful image restoration system from simple mathematical operations you already know: - Convolution = sliding dot products - Residual learning = addition of matrices - Channel attention = learned scaling of vectors - Training = gradient descent on a loss function\nThe “deep learning” part is really just applying these operations millions of times with learned parameters."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html",
+    "href": "posts/01-introduction/index.html",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "",
+    "text": "For my senior project, I am reproducing the work from the paper “Deep learning-based aberration compensation improves contrast and resolution in fluorescence microscopy” by Min Guo et al. (Nature Communications, 2024)."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#overview",
+    "href": "posts/01-introduction/index.html#overview",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "",
+    "text": "For my senior project, I am reproducing the work from the paper “Deep learning-based aberration compensation improves contrast and resolution in fluorescence microscopy” by Min Guo et al. (Nature Communications, 2024)."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#what-is-the-paper-about",
+    "href": "posts/01-introduction/index.html#what-is-the-paper-about",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "What is the paper about?",
+    "text": "What is the paper about?\nThe paper introduces a deep learning pipeline called DeAbe+ that improves the quality of fluorescence microscopy images. When scientists image biological samples like worm embryos, the images get distorted and blurry — especially deep inside thick tissue. The authors trained neural networks to fix these distortions automatically without needing special hardware."
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#the-pipeline",
+    "href": "posts/01-introduction/index.html#the-pipeline",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "The Pipeline",
+    "text": "The Pipeline\nThe method works in 3 steps:\n\nDe-aberration (Step 1): Fixes optical distortions using a 3D-RCAN network\nDeconvolution (Step 2): Sharpens the image using another 3D-RCAN network\n\nIsotropic Enhancement (Step 3): Improves resolution in all directions using a CARE network"
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#my-goals",
+    "href": "posts/01-introduction/index.html#my-goals",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "My Goals",
+    "text": "My Goals\n\nDownload and explore the provided dataset (C. elegans worm embryo images)\nRun the pre-trained models on the test data\nReproduce the key figures from the paper\nDocument every step of the process"
+  },
+  {
+    "objectID": "posts/01-introduction/index.html#data",
+    "href": "posts/01-introduction/index.html#data",
+    "title": "Reproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy",
+    "section": "Data",
+    "text": "Data\nThe data is publicly available at Zenodo and was also kindly shared directly by the authors’ lab."
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html",
+    "href": "posts/03-reproducibility-challenges/index.html",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "",
+    "text": "One of the most important, and often overlooked, aspects of science is reproducibility: the ability for other researchers to run the same code and get the same results. This post documents the real challenges I encountered trying to run the 3D-RCAN pipeline from Guo et al. (2024) on modern hardware and software in 2026.\nSpoiler: it did not work out of the box."
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#overview",
+    "href": "posts/03-reproducibility-challenges/index.html#overview",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "",
+    "text": "One of the most important, and often overlooked, aspects of science is reproducibility: the ability for other researchers to run the same code and get the same results. This post documents the real challenges I encountered trying to run the 3D-RCAN pipeline from Guo et al. (2024) on modern hardware and software in 2026.\nSpoiler: it did not work out of the box."
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#my-environment",
+    "href": "posts/03-reproducibility-challenges/index.html#my-environment",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "My Environment",
+    "text": "My Environment\n\nComputer: MacBook Air M3 (Apple Silicon), 16GB RAM\nOS: macOS Sequoia 15.6\nPython: 3.12 (system), 3.10 (virtual environment)\nGoal: Run the pre-trained de-aberration model on C. elegans test images"
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#what-the-code-requires",
+    "href": "posts/03-reproducibility-challenges/index.html#what-the-code-requires",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "What the Code Requires",
+    "text": "What the Code Requires\nThe 3D-RCAN code was written in 2021 and requires:\n\n\n\nDependency\nRequired Version\nLatest Version (2026)\n\n\n\n\nPython\n3.7\n3.13\n\n\nTensorFlow\n1.13\n2.21\n\n\nKeras\n2.2.4\n3.x\n\n\nCUDA\n10.0\n12.x\n\n\nGPU\nNVIDIA only\n—"
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#the-compatibility-timeline",
+    "href": "posts/03-reproducibility-challenges/index.html#the-compatibility-timeline",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "The Compatibility Timeline",
+    "text": "The Compatibility Timeline\n\nAttempt 1 — Run directly on Mac M3\nRunning apply.py with system Python 3.12 and TensorFlow 2.21 immediately failed:\nAttributeError: module 'tensorflow' has no attribute 'logging'\nRoot cause: tf.logging was removed in TensorFlow 2.x.\nFix: Replace with tf.compat.v1.logging\n\n\nAttempt 2 — Keras serialization error\nAfter fixing the logging issue:\nTypeError: Could not locate class 'Model'\nRoot cause: Keras 3.x completely changed its model serialization format.\nFix attempted: Replace model_from_config() with model_from_json() — partially worked but hit further issues.\n\n\nAttempt 3 — Apple Silicon threading crash\nlibc++abi: terminating due to uncaught exception of type \nstd::__1::system_error: mutex lock failed\nRoot cause: TensorFlow’s threading model conflicts with macOS on M3.\nFix: Set OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES\n\n\nAttempt 4 — Google Colab\nMoved to Google Colab hoping their NVIDIA GPUs would help:\nERROR: No matching distribution found for tensorflow-gpu==1.13.1\nRoot cause: TensorFlow 1.x is no longer available on any platform.\n\n\nAttempt 5 — Python 3.10 + tensorflow-macos\nCreated a fresh virtual environment with Python 3.10 and tensorflow-macos==2.12.0 (the last version before Keras 3 broke everything):\nMetal device set to: Apple M3\nsystemMemory: 16.00 GB\nLoading model from RCAN_model/weights_169_0.05605552.hdf5\nProgress! The model file was found and Metal GPU detected. But then:\nValueError: bad marshal data (unknown type code)\nRoot cause: The model contains Lambda layers whose bytecode was compiled with Python 3.7. Python’s marshal module is not compatible across versions, so the bytecode cannot be loaded in Python 3.10."
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#why-this-matters",
+    "href": "posts/03-reproducibility-challenges/index.html#why-this-matters",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "Why This Matters",
+    "text": "Why This Matters\nThis experience highlights software rot, a real and growing problem in computational science. Code that worked perfectly in 2021 may not run at all in 2026 due to:\n\nDependency deprecation\nBreaking API changes between major versions\n\nHardware architecture evolution (x86 → Apple Silicon)\nCloud platform updates removing old package versions"
+  },
+  {
+    "objectID": "posts/03-reproducibility-challenges/index.html#next-steps",
+    "href": "posts/03-reproducibility-challenges/index.html#next-steps",
+    "title": "Reproducibility Challenges: Running 3D-RCAN in 2026",
+    "section": "Next Steps",
+    "text": "Next Steps\n\nContinue working with the original authors to get a working environment\nRewrite the inference code in modern PyTorch which runs natively on Mac M3\nCompare results to the paper’s published figures"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "I’m a senior student working on reproducing deep learning-based aberration compensation for fluorescence microscopy as my senior project.\nThis blog documents my journey through the paper by Min Guo et al. (2024), including data exploration, model training, and results."
+  },
+  {
+    "objectID": "about.html#hi-im-camila",
+    "href": "about.html#hi-im-camila",
+    "title": "About",
+    "section": "",
+    "text": "I’m a senior student working on reproducing deep learning-based aberration compensation for fluorescence microscopy as my senior project.\nThis blog documents my journey through the paper by Min Guo et al. (2024), including data exploration, model training, and results."
+  }
+]
