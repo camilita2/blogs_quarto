@@ -216,7 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="loading-the-images" class="level2">
 <h2 class="anchored" data-anchor-id="loading-the-images">Loading the Images</h2>
-<div id="19a6c1d7" class="cell" data-execution_count="1">
+<div id="c7852aec" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tifffile</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -237,7 +237,7 @@ Data type: uint16</code></pre>
 </section>
 <section id="visualizing-the-images" class="level2">
 <h2 class="anchored" data-anchor-id="visualizing-the-images">Visualizing the Images</h2>
-<div id="56c07042" class="cell" data-execution_count="2">
+<div id="c68f0e8a" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].imshow(spima[spima.shape[<span class="dv">0</span>]<span class="op">//</span><span class="dv">2</span>], cmap<span class="op">=</span><span class="st">'gray'</span>)</span>

@@ -2,7 +2,7 @@
 title: "Reproducibility Challenges: Running 3D-RCAN in 2026"
 description: "Documenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware"
 author: "Camila Ramirez"
-date: "2026-03-26"
+date: "2026-03-15"
 categories: [reproducibility, tensorflow, python, debugging]
 draft: false
 ---
