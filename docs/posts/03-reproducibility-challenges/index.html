@@ -136,7 +136,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#attempt-4-google-colab" id="toc-attempt-4-google-colab" class="nav-link" data-scroll-target="#attempt-4-google-colab">Attempt 4 — Google Colab</a></li>
   <li><a href="#attempt-5-python-3.10-tensorflow-macos" id="toc-attempt-5-python-3.10-tensorflow-macos" class="nav-link" data-scroll-target="#attempt-5-python-3.10-tensorflow-macos">Attempt 5 — Python 3.10 + tensorflow-macos</a></li>
   </ul></li>
-  <li><a href="#where-things-stand" id="toc-where-things-stand" class="nav-link" data-scroll-target="#where-things-stand">Where Things Stand</a></li>
   <li><a href="#why-this-matters" id="toc-why-this-matters" class="nav-link" data-scroll-target="#why-this-matters">Why This Matters</a></li>
   <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul>
@@ -189,8 +188,8 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>One of the most important — and often overlooked — aspects of science is <strong>reproducibility</strong>: the ability for other researchers to run the same code and get the same results. This post documents the real challenges I encountered trying to run the 3D-RCAN pipeline from Guo et al.&nbsp;(2024) on modern hardware and software in 2026.</p>
-<p>Spoiler: it did not work out of the box. And that itself is an important finding.</p>
+<p>One of the most important, and often overlooked, aspects of science is <strong>reproducibility</strong>: the ability for other researchers to run the same code and get the same results. This post documents the real challenges I encountered trying to run the 3D-RCAN pipeline from Guo et al.&nbsp;(2024) on modern hardware and software in 2026.</p>
+<p>Spoiler: it did not work out of the box.</p>
 </section>
 <section id="my-environment" class="level2">
 <h2 class="anchored" data-anchor-id="my-environment">My Environment</h2>
@@ -248,7 +247,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Running <code>apply.py</code> with system Python 3.12 and TensorFlow 2.21 immediately failed:</p>
 <pre><code>AttributeError: module 'tensorflow' has no attribute 'logging'</code></pre>
 <p><strong>Root cause:</strong> <code>tf.logging</code> was removed in TensorFlow 2.x.<br>
-<strong>Fix:</strong> Replace with <code>tf.compat.v1.logging</code> ✅</p>
+<strong>Fix:</strong> Replace with <code>tf.compat.v1.logging</code></p>
 </section>
 <section id="attempt-2-keras-serialization-error" class="level3">
 <h3 class="anchored" data-anchor-id="attempt-2-keras-serialization-error">Attempt 2 — Keras serialization error</h3>
@@ -262,7 +261,7 @@ ul.task-list li input[type="checkbox"] {
 <pre><code>libc++abi: terminating due to uncaught exception of type 
 std::__1::system_error: mutex lock failed</code></pre>
 <p><strong>Root cause:</strong> TensorFlow’s threading model conflicts with macOS on M3.<br>
-<strong>Fix:</strong> Set <code>OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES</code> ✅</p>
+<strong>Fix:</strong> Set <code>OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES</code></p>
 </section>
 <section id="attempt-4-google-colab" class="level3">
 <h3 class="anchored" data-anchor-id="attempt-4-google-colab">Attempt 4 — Google Colab</h3>
@@ -281,14 +280,9 @@ Loading model from RCAN_model/weights_169_0.05605552.hdf5</code></pre>
 <p><strong>Root cause:</strong> The model contains Lambda layers whose bytecode was compiled with Python 3.7. Python’s <code>marshal</code> module is not compatible across versions, so the bytecode cannot be loaded in Python 3.10.</p>
 </section>
 </section>
-<section id="where-things-stand" class="level2">
-<h2 class="anchored" data-anchor-id="where-things-stand">Where Things Stand</h2>
-<p>I have successfully: - ✅ Loaded the test images and verified the data - ✅ Fixed 5 separate compatibility issues in the codebase - ✅ Got the Apple M3 Metal GPU recognized by TensorFlow - ✅ Located and verified the trained model weights - ✅ Contacted the original authors for guidance</p>
-<p>The remaining blocker is the Python bytecode incompatibility in the Lambda layers — a fundamental issue caused by the model being saved with Python 3.7 compiled functions that cannot be deserialized in any newer Python version.</p>
-</section>
 <section id="why-this-matters" class="level2">
 <h2 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h2>
-<p>This experience highlights <strong>software rot</strong> — a real and growing problem in computational science. Code that worked perfectly in 2021 may not run at all in 2026 due to:</p>
+<p>This experience highlights <strong>software rot</strong>, a real and growing problem in computational science. Code that worked perfectly in 2021 may not run at all in 2026 due to:</p>
 <ul>
 <li>Dependency deprecation</li>
 <li>Breaking API changes between major versions<br>
@@ -296,7 +290,6 @@ Loading model from RCAN_model/weights_169_0.05605552.hdf5</code></pre>
 <li>Hardware architecture evolution (x86 → Apple Silicon)</li>
 <li>Cloud platform updates removing old package versions</li>
 </ul>
-<p>A 2022 study found that over 50% of published computational biology papers cannot be fully reproduced due to software dependency issues. Documenting these challenges — as I am doing here — is itself a valuable scientific contribution to the reproducibility crisis conversation.</p>
 </section>
 <section id="next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>

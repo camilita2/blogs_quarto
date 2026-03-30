@@ -9,13 +9,13 @@ draft: false
 
 ## Overview
 
-One of the most important — and often overlooked — aspects of science is 
+One of the most important, and often overlooked, aspects of science is 
 **reproducibility**: the ability for other researchers to run the same code 
 and get the same results. This post documents the real challenges I encountered 
 trying to run the 3D-RCAN pipeline from Guo et al. (2024) on modern hardware 
 and software in 2026.
 
-Spoiler: it did not work out of the box. And that itself is an important finding.
+Spoiler: it did not work out of the box.
 
 ## My Environment
 
@@ -46,7 +46,7 @@ AttributeError: module 'tensorflow' has no attribute 'logging'
 ```
 
 **Root cause:** `tf.logging` was removed in TensorFlow 2.x.  
-**Fix:** Replace with `tf.compat.v1.logging` ✅
+**Fix:** Replace with `tf.compat.v1.logging` 
 
 ### Attempt 2 — Keras serialization error
 
@@ -66,7 +66,7 @@ std::__1::system_error: mutex lock failed
 ```
 
 **Root cause:** TensorFlow's threading model conflicts with macOS on M3.  
-**Fix:** Set `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` ✅
+**Fix:** Set `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` 
 
 ### Attempt 4 — Google Colab
 
@@ -96,22 +96,9 @@ ValueError: bad marshal data (unknown type code)
 with Python 3.7. Python's `marshal` module is not compatible across versions, 
 so the bytecode cannot be loaded in Python 3.10.
 
-## Where Things Stand
-
-I have successfully:
-- ✅ Loaded the test images and verified the data
-- ✅ Fixed 5 separate compatibility issues in the codebase
-- ✅ Got the Apple M3 Metal GPU recognized by TensorFlow
-- ✅ Located and verified the trained model weights
-- ✅ Contacted the original authors for guidance
-
-The remaining blocker is the Python bytecode incompatibility in the Lambda 
-layers — a fundamental issue caused by the model being saved with Python 3.7 
-compiled functions that cannot be deserialized in any newer Python version.
-
 ## Why This Matters
 
-This experience highlights **software rot** — a real and growing problem in 
+This experience highlights **software rot**, a real and growing problem in 
 computational science. Code that worked perfectly in 2021 may not run at all 
 in 2026 due to:
 
@@ -119,11 +106,6 @@ in 2026 due to:
 - Breaking API changes between major versions  
 - Hardware architecture evolution (x86 → Apple Silicon)
 - Cloud platform updates removing old package versions
-
-A 2022 study found that over 50% of published computational biology papers 
-cannot be fully reproduced due to software dependency issues. Documenting 
-these challenges — as I am doing here — is itself a valuable scientific 
-contribution to the reproducibility crisis conversation.
 
 ## Next Steps
 
