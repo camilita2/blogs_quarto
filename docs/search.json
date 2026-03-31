@@ -11,7 +11,7 @@
     "href": "index.html",
     "title": "Camila Ramirez",
     "section": "",
-    "text": "Reimplementing 3D-RCAN in Modern PyTorch\n\n\n\npytorch\n\ndeep learning\n\nreimplementation\n\npython\n\n\n\nBuilding the 3D Residual Channel Attention Network from scratch in PyTorch and running it on Apple M3\n\n\n\n\n\nMar 30, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nThe Math Behind 3D-RCAN: Convolutions, Residuals and Attention\n\n\n\ntheory\n\ndeep learning\n\nmath\n\nlinear algebra\n\n\n\nA mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy\n\n\n\n\n\nMar 26, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducibility Challenges: Running 3D-RCAN in 2026\n\n\n\nreproducibility\n\ntensorflow\n\npython\n\ndebugging\n\n\n\nDocumenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware\n\n\n\n\n\nMar 15, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nData Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
+    "text": "Reimplementing 3D-RCAN in Modern PyTorch\n\n\n\npytorch\n\ndeep learning\n\nreimplementation\n\npython\n\n\n\nBuilding the 3D Residual Channel Attention Network from scratch in PyTorch, training it on real microscopy data, and running it on Apple M3\n\n\n\n\n\nMar 30, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nThe Math Behind 3D-RCAN: Convolutions, Residuals and Attention\n\n\n\ntheory\n\ndeep learning\n\nmath\n\nlinear algebra\n\n\n\nA mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy\n\n\n\n\n\nMar 26, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducibility Challenges: Running 3D-RCAN in 2026\n\n\n\nreproducibility\n\ntensorflow\n\npython\n\ndebugging\n\n\n\nDocumenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware\n\n\n\n\n\nMar 15, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nData Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/05-pytorch-rewrite/index.html",
@@ -32,42 +32,49 @@
     "href": "posts/05-pytorch-rewrite/index.html#the-architecture",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
     "section": "The Architecture",
-    "text": "The Architecture\nThe 3D-RCAN network is built from four components, each building on the previous:\n\nComponent 1: Channel Attention\nThe first building block learns which feature channels matter most.\nclass ChannelAttention(nn.Module):\n    def __init__(self, num_channels, reduction=8):\n        super().__init__()\n        self.gap = nn.AdaptiveAvgPool3d(1)  # squeeze each channel to 1 number\n        self.fc = nn.Sequential(\n            nn.Linear(num_channels, num_channels // reduction),\n            nn.ReLU(),\n            nn.Linear(num_channels // reduction, num_channels),\n            nn.Sigmoid()  # outputs weights between 0 and 1\n        )\n\n    def forward(self, x):\n        z = self.gap(x).view(x.size(0), -1)  # global average per channel\n        s = self.fc(z).view(x.size(0), -1, 1, 1, 1)  # learned weights\n        return x * s  # scale each channel by its weight\nIn math: \\(s = \\sigma(W_2 \\cdot \\text{ReLU}(W_1 \\cdot z))\\)\nEach channel gets multiplied by a learned weight between 0 and 1. Channels with useful information get weight close to 1. Channels that don’t matter get weight close to 0.\n\n\nComponent 2: RCAB (Residual Channel Attention Block)\nThe core processing unit combines convolutions, channel attention, and a skip connection:\nclass RCAB(nn.Module):\n    def forward(self, x):\n        residual = x                    # save the original input\n        out = self.relu(self.conv1(x))  # first convolution\n        out = self.conv2(out)           # second convolution  \n        out = self.ca(out)              # apply channel attention\n        return out + residual           # add original back (skip connection!)\nIn math: \\(\\text{RCAB}(x) = x + \\text{CA}(\\text{Conv}(\\text{ReLU}(\\text{Conv}(x))))\\)\nThe key insight is the + residual at the end. Instead of learning the full transformation, the network only learns the correction needed. This makes training much easier.\n\n\nComponent 3: Residual Group\nFive RCABs stacked together with another skip connection around the whole group:\nclass ResidualGroup(nn.Module):\n    def forward(self, x):\n        return x + self.conv(self.blocks(x))  # residuals within residuals!\nThis creates a hierarchical structure — small residuals inside large residuals — which helps the network learn at multiple scales.\n\n\nComponent 4: Full RCAN3D Network\nThe complete network chains everything together:\nclass RCAN3D(nn.Module):\n    def forward(self, x):\n        # Normalize input\n        mean, std = x.mean(), x.std() + 1e-8\n        x = (x - mean) / std\n        \n        # Forward pass\n        head = self.head(x)           # initial feature extraction\n        body = self.body(head)        # 5 residual groups\n        out = self.tail(body + head)  # global skip connection\n        \n        # Denormalize output\n        return out * std + mean"
+    "text": "The Architecture\nThe 3D-RCAN network is built from four components:\n\nChannel Attention\nLearns which feature channels matter most:\nclass ChannelAttention(nn.Module):\n    def forward(self, x):\n        z = self.gap(x).view(x.size(0), -1)\n        s = self.fc(z).view(x.size(0), -1, 1, 1, 1)\n        return x * s  # scale each channel by learned weight\n\n\nRCAB (Residual Channel Attention Block)\nCore processing unit with skip connection:\nclass RCAB(nn.Module):\n    def forward(self, x):\n        residual = x\n        out = self.relu(self.conv1(x))\n        out = self.conv2(out)\n        out = self.ca(out)\n        return out + residual  # skip connection\n\n\nFull RCAN3D Network\nclass RCAN3D(nn.Module):\n    def forward(self, x):\n        mean, std = x.mean(), x.std() + 1e-8\n        x = (x - mean) / std          # normalize\n        head = self.head(x)            # feature extraction\n        body = self.body(head)         # 3 residual groups\n        out = self.tail(body + head)   # global skip connection\n        return out * std + mean        # denormalize"
   },
   {
     "objectID": "posts/05-pytorch-rewrite/index.html#running-on-apple-m3",
     "href": "posts/05-pytorch-rewrite/index.html#running-on-apple-m3",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
     "section": "Running on Apple M3",
-    "text": "Running on Apple M3\nOne of the main motivations for the rewrite was to run on Apple Silicon. PyTorch supports M3 via Metal Performance Shaders (MPS):\ndevice = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')\nmodel = RCAN3D().to(device)\nUsing device: mps\nTotal parameters: 1,559,141\nInput shape:  torch.Size([1, 1, 16, 64, 64])\nOutput shape: torch.Size([1, 1, 16, 64, 64])\nModel works!\nThe model has 1.5 million trainable parameters and runs successfully on the M3 GPU."
+    "text": "Running on Apple M3\nPyTorch supports M3 via Metal Performance Shaders (MPS):\nUsing device: mps\nTotal parameters: 154,035\nModel works!"
   },
   {
-    "objectID": "posts/05-pytorch-rewrite/index.html#applying-to-real-data",
-    "href": "posts/05-pytorch-rewrite/index.html#applying-to-real-data",
+    "objectID": "posts/05-pytorch-rewrite/index.html#training-on-real-data",
+    "href": "posts/05-pytorch-rewrite/index.html#training-on-real-data",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
-    "section": "Applying to Real Data",
-    "text": "Applying to Real Data\nI applied the rewrite to the actual C. elegans worm embryo test images:\nimage = tifffile.imread('SPIMA-80.tif').astype(np.float32)\n# Image shape: (45, 370, 270)\n# Min: 0.00, Max: 660.00\n\n\n\nBefore and After"
+    "section": "Training on Real Data",
+    "text": "Training on Real Data\nI trained the model on 5,600 paired image crops of aberrated and clean C. elegans worm embryo images provided by the authors’ lab.\nTraining configuration: - Epochs: 5 - Batch size: 2 - Loss function: MAE (same as original paper) - Optimizer: Adam, lr=1e-4 - Crop size: 16 × 128 × 128\n\nTraining Loss Curve\n\n\n\nTraining Loss\n\n\nThe loss decreased consistently from 11.3 → 10.49 across 5 epochs, confirming the model is learning. The curve is still declining, meaning more training epochs would further improve results."
   },
   {
-    "objectID": "posts/05-pytorch-rewrite/index.html#important-caveat-untrained-weights",
-    "href": "posts/05-pytorch-rewrite/index.html#important-caveat-untrained-weights",
+    "objectID": "posts/05-pytorch-rewrite/index.html#exploring-the-data",
+    "href": "posts/05-pytorch-rewrite/index.html#exploring-the-data",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
-    "section": "Important Caveat: Untrained Weights",
-    "text": "Important Caveat: Untrained Weights\nThe output looks noisy because the model has randomly initialized weights — it has not been trained yet. The original paper’s trained weights are stored in a Keras .hdf5 format that is not directly compatible with PyTorch.\nTo get meaningful results, the model would need to either: 1. Be trained from scratch on the paired aberrated/clean image dataset 2. Have the original Keras weights converted to PyTorch format\nThis is the next step in the project. The architecture itself is correct — the input and output shapes match, the model runs on M3, and all the mathematical operations are properly implemented."
+    "section": "Exploring the Data",
+    "text": "Exploring the Data\nFirst I visualized all 45 Z-slices to find the best region:\n\n\n\nAll Slices\n\n\nThe worm embryo is most visible in slices 18-35, where the cell membrane network is clearly visible."
   },
   {
-    "objectID": "posts/05-pytorch-rewrite/index.html#what-i-learned",
-    "href": "posts/05-pytorch-rewrite/index.html#what-i-learned",
+    "objectID": "posts/05-pytorch-rewrite/index.html#aberration-correction-results",
+    "href": "posts/05-pytorch-rewrite/index.html#aberration-correction-results",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
-    "section": "What I Learned",
-    "text": "What I Learned\nRewriting this network from scratch taught me more about deep learning than simply running the original code would have. Specifically:\n\nThe difference between architecture (the network structure) and weights (the learned parameters)\nHow skip connections make deep networks trainable\nHow channel attention adaptively focuses on important features\nHow normalization stabilizes training and inference\nThe practical challenges of cross-framework compatibility"
+    "section": "Aberration Correction Results",
+    "text": "Aberration Correction Results\nApplying the trained model to slice 26 — the middle of the embryo:\n\n\n\nBefore and After\n\n\nLeft (Original): Soft, blurry cell membranes with diffuse signal\nRight (Trained Model): Sharp, crisp cell membrane boundaries with clearly defined individual cells\nThe model successfully learned to correct optical aberrations and enhance the visibility of biological structures in the C. elegans embryo!"
   },
   {
     "objectID": "posts/05-pytorch-rewrite/index.html#comparison-original-vs-rewrite",
     "href": "posts/05-pytorch-rewrite/index.html#comparison-original-vs-rewrite",
     "title": "Reimplementing 3D-RCAN in Modern PyTorch",
     "section": "Comparison: Original vs Rewrite",
-    "text": "Comparison: Original vs Rewrite\n\n\n\nFeature\nOriginal (Keras)\nRewrite (PyTorch)\n\n\n\n\nPython version\n3.7\n3.10\n\n\nFramework\nTensorFlow 1.13 + Keras\nPyTorch 2.11\n\n\nMac M3 support\n❌\n✅\n\n\nLines of code\n~500\n~100\n\n\nTrained weights\n✅\n❌ (next step)\n\n\nRuns in 2026\n❌\n✅"
+    "text": "Comparison: Original vs Rewrite\n\n\n\nFeature\nOriginal\nPyTorch Rewrite\n\n\n\n\nPython\n3.7\n3.10\n\n\nFramework\nTensorFlow 1.13\nPyTorch 2.11\n\n\nMac M3 support\n❌\n✅\n\n\nParameters\n~1.5M\n154K\n\n\nTraining epochs\n200\n5\n\n\nLines of code\n~500\n~100\n\n\nRuns in 2026\n❌\n✅\n\n\nShows improvement\n✅\n✅"
+  },
+  {
+    "objectID": "posts/05-pytorch-rewrite/index.html#conclusions",
+    "href": "posts/05-pytorch-rewrite/index.html#conclusions",
+    "title": "Reimplementing 3D-RCAN in Modern PyTorch",
+    "section": "Conclusions",
+    "text": "Conclusions\nWith only 5 epochs and a smaller model, the PyTorch rewrite already shows meaningful aberration correction on real C. elegans microscopy data. The original paper trained for 200 epochs — with more training time the results would approach the paper’s quality.\nThis demonstrates that the 3D-RCAN architecture can be successfully reimplemented in modern frameworks and run on consumer hardware like the Apple M3."
   },
   {
     "objectID": "posts/02-data-exploration/index.html",

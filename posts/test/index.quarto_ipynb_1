@@ -1,0 +1,58 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Test Marimo Post\"\n",
+        "description: \"\"\n",
+        "author: \"J. Hathaway\"\n",
+        "date: \"2026-03-03\"\n",
+        "categories: []\n",
+        "draft: true\n",
+        "---\n",
+        "\n",
+        "\n",
+        "## Explore a marimo based post\n",
+        "\n",
+        "This repository provides a framework for integrating\n",
+        "[](https://quarto.org) with [](https://marimo.io),\n",
+        "enabling markdown documents to be executed in a  environment, and\n",
+        "reactive in page.\n",
+        "\n",
+        "```{python.marimo}\n",
+        "import marimo as mo\n",
+        "```\n",
+        "\n",
+        "```{python.marimo}\n",
+        "slider = mo.ui.slider(start=1, stop=10)\n",
+        "slider\n",
+        "```\n",
+        "\n",
+        "```{python.marimo}\n",
+        "#| echo: true\n",
+        "mo.md(f'''\n",
+        "  # Hello from marimo!{'!' * slider.value}\n",
+        "\n",
+        "  This is a raw, reactive python cell.\n",
+        "  You can edit it, and the output will change on run.\n",
+        "''').callout(\"info\")\n",
+        "```\n",
+        "\n",
+        "Write your post here."
+      ],
+      "id": "1bd0b083"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/camilaramirez/Library/Python/3.12/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
