@@ -154,11 +154,11 @@
     "text": "5. Training: How the Network Learns\nThe network is trained on pairs of images: - Input: Aberrated microscopy image \\(\\hat{x}\\) - Target: Clean ground truth image \\(x^*\\)\nIt minimizes the Mean Absolute Error (MAE) loss:\n\\[\\mathcal{L} = \\frac{1}{N} \\sum_{i=1}^{N} |f(\\hat{x}_i) - x^*_i|\\]\nWhere \\(f\\) is the network and \\(N\\) is the number of pixels. The network updates its weights using gradient descent:\n\\[W \\leftarrow W - \\alpha \\nabla_W \\mathcal{L}\\]\nWhere \\(\\alpha\\) is the learning rate. This is the chain rule of calculus applied to matrices — exactly what you study in multivariable calculus and linear algebra!"
   },
   {
-    "objectID": "posts/04-theory-3drcan/index.html#connection-to-your-classes",
-    "href": "posts/04-theory-3drcan/index.html#connection-to-your-classes",
+    "objectID": "posts/04-theory-3drcan/index.html#connection-to-my-classes",
+    "href": "posts/04-theory-3drcan/index.html#connection-to-my-classes",
     "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
-    "section": "Connection to Your Classes",
-    "text": "Connection to Your Classes\n\n\n\nConcept\nClass\n\n\n\n\nMatrix multiplication (convolutions)\nLinear Algebra\n\n\nGradient descent, chain rule\nMultivariable Calculus\n\n\nDot products, vector spaces\nLinear Algebra\n\n\nEigenvalues (feature channels)\nLinear Algebra\n\n\nLoss minimization\nCalculus"
+    "section": "Connection to my Classes",
+    "text": "Connection to my Classes\n\n\n\nConcept\nClass\n\n\n\n\nMatrix multiplication (convolutions)\nLinear Algebra\n\n\nGradient descent, chain rule\nMultivariable Calculus\n\n\nDot products, vector spaces\nLinear Algebra\n\n\nEigenvalues (feature channels)\nLinear Algebra\n\n\nLoss minimization\nCalculus"
   },
   {
     "objectID": "posts/04-theory-3drcan/index.html#summary",
