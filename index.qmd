@@ -2,7 +2,7 @@
 title: "Camila Ramirez"
 listing:
   contents: posts
-  sort: "date desc"
+  sort: "date date asc"
   type: default
   categories: true
 page-layout: full
