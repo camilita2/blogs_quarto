@@ -1,0 +1,99 @@
+---
+title: "Conclusions: What I Learned Reproducing a Nature Paper"
+description: "A reflection on reproducing DeAbe+ — what worked, what didn't, and what comes next"
+author: "Camila Ramirez"
+date: "2026-04-01"
+categories: [conclusions, reflection, deep learning, reproducibility]
+draft: false
+---
+
+## What I Set Out To Do
+
+For my senior project I attempted to reproduce the results of Guo et al. 
+(2024) — a Nature Communications paper proposing DeAbe+, a deep learning 
+pipeline for correcting optical aberrations in fluorescence microscopy 
+images of *C. elegans* worm embryos.
+
+My goals were:
+1. Run the original code on the provided test data
+2. Understand the mathematical theory behind the model
+3. Reproduce the key results from the paper
+4. Document everything publicly
+
+## What I Actually Accomplished
+
+The project took an unexpected but valuable turn:
+
+**What worked:**
+- ✅ Obtained real microscopy data directly from the authors
+- ✅ Loaded and visualized *C. elegans* embryo images in Python
+- ✅ Understood the full 3D-RCAN architecture mathematically
+- ✅ Rebuilt the entire network from scratch in modern PyTorch (~100 lines)
+- ✅ Trained on 5,600 real paired image crops overnight on Apple M3
+- ✅ Produced visibly improved aberration correction results
+- ✅ Documented everything in a public blog
+
+**What didn't work:**
+- ❌ Running the original TensorFlow 1.13 code on any modern platform
+- ❌ Loading pretrained Keras weights into PyTorch
+- ❌ Matching the paper's quantitative metrics (200 epochs vs 5)
+
+## The Reproducibility Problem
+
+The biggest unexpected finding was how difficult it was to run 
+5-year-old deep learning code. The original code required:
+
+- Python 3.7 (current: 3.13)
+- TensorFlow 1.13 (unavailable since ~2021)
+- NVIDIA GPU with CUDA 10.0 (I have Apple M3)
+
+I patched 5 separate compatibility errors manually, contacted the 
+original authors, and tried Google Colab — all before deciding to 
+rewrite from scratch.
+
+This experience highlights **software rot** — a growing crisis in 
+computational science where published code becomes unrunnable within 
+a few years due to rapidly evolving dependencies.
+
+## The Math I Learned
+
+Before this project I had never implemented a neural network from scratch.
+Now I understand exactly how each operation connects to linear algebra:
+
+- **Convolutions** = sliding 3D dot products (matrix multiplication)
+- **Residual connections** = matrix addition with skip connections
+- **Channel attention** = learned scaling using sigmoid and matrix multiplication
+- **Gradient descent** = chain rule applied to millions of parameters
+
+My linear algebra and multivariable calculus classes were directly 
+applicable to understanding and building this network.
+
+## Key Results
+
+After training for 5 epochs on Apple M3:
+
+![Aberration Correction Result](../05-pytorch-rewrite/trained_result_good.png)
+
+The trained model produces visibly sharper cell membrane boundaries 
+compared to the aberrated input. Individual cells are more clearly 
+defined, and the membrane network structure is more distinct.
+
+![Training Loss](../05-pytorch-rewrite/training_loss.png)
+
+Loss decreased consistently from 11.3 → 10.5 over 5 epochs, 
+confirming the model was learning.
+
+## What I Would Do Differently
+
+1. **Start with PyTorch from the beginning** — don't spend weeks 
+   fighting old TensorFlow code
+2. **Train for more epochs** — 5 epochs vs 200 means my results 
+   are preliminary
+3. **Use a larger model** — 154K parameters vs 1.5M in the original
+4. **Contact authors earlier** — they were responsive and helpful
+
+## Future Work
+
+- Train for 50-200 epochs to approach paper's quality
+- Convert original Keras weights to PyTorch format
+- Implement Steps 2 and 3

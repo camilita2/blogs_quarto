@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/06-conclusions/index.html",
       "/posts/05-pytorch-rewrite/index.html",
       "/posts/04-theory-3drcan/index.html",
       "/posts/03-reproducibility-challenges/index.html",

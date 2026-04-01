@@ -11,7 +11,7 @@
     "href": "index.html",
     "title": "Camila Ramirez",
     "section": "",
-    "text": "Reimplementing 3D-RCAN in Modern PyTorch\n\n\n\npytorch\n\ndeep learning\n\nreimplementation\n\npython\n\n\n\nBuilding the 3D Residual Channel Attention Network from scratch in PyTorch, training it on real microscopy data, and running it on Apple M3\n\n\n\n\n\nMar 30, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nThe Math Behind 3D-RCAN: Convolutions, Residuals and Attention\n\n\n\ntheory\n\ndeep learning\n\nmath\n\nlinear algebra\n\n\n\nA mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy\n\n\n\n\n\nMar 26, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducibility Challenges: Running 3D-RCAN in 2026\n\n\n\nreproducibility\n\ntensorflow\n\npython\n\ndebugging\n\n\n\nDocumenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware\n\n\n\n\n\nMar 15, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nData Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
+    "text": "Conclusions: What I Learned Reproducing a Nature Paper\n\n\n\nconclusions\n\nreflection\n\ndeep learning\n\nreproducibility\n\n\n\nA reflection on reproducing DeAbe+ — what worked, what didn’t, and what comes next\n\n\n\n\n\nApr 1, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReimplementing 3D-RCAN in Modern PyTorch\n\n\n\npytorch\n\ndeep learning\n\nreimplementation\n\npython\n\n\n\nBuilding the 3D Residual Channel Attention Network from scratch in PyTorch, training it on real microscopy data, and running it on Apple M3\n\n\n\n\n\nMar 30, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nThe Math Behind 3D-RCAN: Convolutions, Residuals and Attention\n\n\n\ntheory\n\ndeep learning\n\nmath\n\nlinear algebra\n\n\n\nA mathematical deep dive into the neural network architecture used for aberration correction in fluorescence microscopy\n\n\n\n\n\nMar 26, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducibility Challenges: Running 3D-RCAN in 2026\n\n\n\nreproducibility\n\ntensorflow\n\npython\n\ndebugging\n\n\n\nDocumenting the real software compatibility challenges encountered when reproducing a 2024 Nature Communications paper on modern hardware\n\n\n\n\n\nMar 15, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nData Exploration - Worm Embryo Microscopy Images\n\n\n\ndata exploration\n\nmicroscopy\n\npython\n\n\n\nLoading and visualizing the C. elegans test dataset\n\n\n\n\n\nMar 4, 2026\n\n\nCamila Ramirez\n\n\n\n\n\n\n\n\n\n\n\n\nReproducing Deep Learning-Based Aberration Compensation for Fluorescence Microscopy\n\n\n\ndeep learning\n\nmicroscopy\n\nimage processing\n\n\n\nAn introduction to my senior project reproducing the DeAbe+ pipeline from Guo et al. 2024\n\n\n\n\n\nMar 3, 2026\n\n\nCamila Ramirez\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/05-pytorch-rewrite/index.html",
@@ -166,6 +166,62 @@
     "title": "The Math Behind 3D-RCAN: Convolutions, Residuals and Attention",
     "section": "Summary",
     "text": "Summary\n3D-RCAN is elegant because it builds a powerful image restoration system from simple mathematical operations you already know: - Convolution = sliding dot products - Residual learning = addition of matrices - Channel attention = learned scaling of vectors - Training = gradient descent on a loss function\nThe “deep learning” part is really just applying these operations millions of times with learned parameters."
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html",
+    "href": "posts/06-conclusions/index.html",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "",
+    "text": "For my senior project I attempted to reproduce the results of Guo et al.  (2024) — a Nature Communications paper proposing DeAbe+, a deep learning pipeline for correcting optical aberrations in fluorescence microscopy images of C. elegans worm embryos.\nMy goals were: 1. Run the original code on the provided test data 2. Understand the mathematical theory behind the model 3. Reproduce the key results from the paper 4. Document everything publicly"
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#what-i-set-out-to-do",
+    "href": "posts/06-conclusions/index.html#what-i-set-out-to-do",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "",
+    "text": "For my senior project I attempted to reproduce the results of Guo et al.  (2024) — a Nature Communications paper proposing DeAbe+, a deep learning pipeline for correcting optical aberrations in fluorescence microscopy images of C. elegans worm embryos.\nMy goals were: 1. Run the original code on the provided test data 2. Understand the mathematical theory behind the model 3. Reproduce the key results from the paper 4. Document everything publicly"
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#what-i-actually-accomplished",
+    "href": "posts/06-conclusions/index.html#what-i-actually-accomplished",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "What I Actually Accomplished",
+    "text": "What I Actually Accomplished\nThe project took an unexpected but valuable turn:\nWhat worked: - ✅ Obtained real microscopy data directly from the authors - ✅ Loaded and visualized C. elegans embryo images in Python - ✅ Understood the full 3D-RCAN architecture mathematically - ✅ Rebuilt the entire network from scratch in modern PyTorch (~100 lines) - ✅ Trained on 5,600 real paired image crops overnight on Apple M3 - ✅ Produced visibly improved aberration correction results - ✅ Documented everything in a public blog\nWhat didn’t work: - ❌ Running the original TensorFlow 1.13 code on any modern platform - ❌ Loading pretrained Keras weights into PyTorch - ❌ Matching the paper’s quantitative metrics (200 epochs vs 5)"
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#the-reproducibility-problem",
+    "href": "posts/06-conclusions/index.html#the-reproducibility-problem",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "The Reproducibility Problem",
+    "text": "The Reproducibility Problem\nThe biggest unexpected finding was how difficult it was to run 5-year-old deep learning code. The original code required:\n\nPython 3.7 (current: 3.13)\nTensorFlow 1.13 (unavailable since ~2021)\nNVIDIA GPU with CUDA 10.0 (I have Apple M3)\n\nI patched 5 separate compatibility errors manually, contacted the original authors, and tried Google Colab — all before deciding to rewrite from scratch.\nThis experience highlights software rot — a growing crisis in computational science where published code becomes unrunnable within a few years due to rapidly evolving dependencies."
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#the-math-i-learned",
+    "href": "posts/06-conclusions/index.html#the-math-i-learned",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "The Math I Learned",
+    "text": "The Math I Learned\nBefore this project I had never implemented a neural network from scratch. Now I understand exactly how each operation connects to linear algebra:\n\nConvolutions = sliding 3D dot products (matrix multiplication)\nResidual connections = matrix addition with skip connections\nChannel attention = learned scaling using sigmoid and matrix multiplication\nGradient descent = chain rule applied to millions of parameters\n\nMy linear algebra and multivariable calculus classes were directly applicable to understanding and building this network."
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#key-results",
+    "href": "posts/06-conclusions/index.html#key-results",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "Key Results",
+    "text": "Key Results\nAfter training for 5 epochs on Apple M3:\n\n\n\nAberration Correction Result\n\n\nThe trained model produces visibly sharper cell membrane boundaries compared to the aberrated input. Individual cells are more clearly defined, and the membrane network structure is more distinct.\n\n\n\nTraining Loss\n\n\nLoss decreased consistently from 11.3 → 10.5 over 5 epochs, confirming the model was learning."
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#what-i-would-do-differently",
+    "href": "posts/06-conclusions/index.html#what-i-would-do-differently",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "What I Would Do Differently",
+    "text": "What I Would Do Differently\n\nStart with PyTorch from the beginning — don’t spend weeks fighting old TensorFlow code\nTrain for more epochs — 5 epochs vs 200 means my results are preliminary\nUse a larger model — 154K parameters vs 1.5M in the original\nContact authors earlier — they were responsive and helpful"
+  },
+  {
+    "objectID": "posts/06-conclusions/index.html#future-work",
+    "href": "posts/06-conclusions/index.html#future-work",
+    "title": "Conclusions: What I Learned Reproducing a Nature Paper",
+    "section": "Future Work",
+    "text": "Future Work\n\nTrain for 50-200 epochs to approach paper’s quality\nConvert original Keras weights to PyTorch format\nImplement Steps 2 and 3"
   },
   {
     "objectID": "posts/01-introduction/index.html",
